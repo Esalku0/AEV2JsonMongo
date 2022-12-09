@@ -1,0 +1,7 @@
+{
+  "IP": "localhost",
+  "port": 3306,
+  "bbdd": "biblioteca",
+  "coleccio1": "books",
+  "coleccio2": "users"
+}

@@ -1,6 +1,6 @@
 {
   "IP": "localhost",
-  "port": 3306,
+  "port": 27017,
   "bbdd": "biblioteca",
   "coleccio1": "books",
   "coleccio2": "users"

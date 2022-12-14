@@ -17,6 +17,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import static com.mongodb.client.model.Filters.eq;
 
 public class Modelo {
 
@@ -26,7 +27,9 @@ public class Modelo {
 	static String collectionBooks;
 	static String collectionUsers;
 	static MongoClient mongoClient;
-
+	static MongoCollection<Document> coleccionBooks;
+	static MongoCollection<Document> coleccionUsers;
+	
 	public static String generarHash(String password) {
 		MessageDigest md = null;
 		try {
@@ -69,16 +72,30 @@ public class Modelo {
 
 		mongoClient = new MongoClient(ipString, port);
 		MongoDatabase database = mongoClient.getDatabase(bbddString);
-		MongoCollection<Document> coleccionBooks = database.getCollection(collectionBooks);
-		MongoCollection<Document> coleccionUsers = database.getCollection(collectionUsers);
+		coleccionBooks = database.getCollection(collectionBooks);
+		coleccionUsers = database.getCollection(collectionUsers);
 
 		System.out.println("ye bon dia");
 	}
+	
+	public static String mostrarCampos() {
+		
+		String contenidoString="";
+		
+		MongoCursor<Document> cursor = coleccionBooks.find().iterator();
+		while (cursor.hasNext()) {
+		System.out.println(cursor.next().toJson());
+		}
+
+
+		return contenidoString;
+	}
+	
 
 	public static void main(String[] args) throws IOException {
-
+		iniciarConexion();
 		generarHash("elowo");
-
+		mostrarCampos();
 		mongoClient.close();
 
 	}

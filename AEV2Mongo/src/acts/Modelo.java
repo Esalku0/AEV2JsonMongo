@@ -1,5 +1,6 @@
 package acts;
 
+import org.apache.commons.codec.binary.Base64;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.json.JSONObject;
@@ -10,13 +11,20 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
 import static com.mongodb.client.model.Filters.*;
 
+import java.awt.Image;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+
 import static com.mongodb.client.model.Filters.eq;
 
 public class Modelo {
@@ -29,7 +37,9 @@ public class Modelo {
 	static MongoClient mongoClient;
 	static MongoCollection<Document> coleccionBooks;
 	static MongoCollection<Document> coleccionUsers;
-	
+	static int contadorLlibres = 0;
+	static int contadorUsuaris = 0;
+
 	public static String generarHash(String password) {
 		MessageDigest md = null;
 		try {
@@ -77,27 +87,69 @@ public class Modelo {
 
 		System.out.println("ye bon dia");
 	}
-	
-	public static String mostrarCampos() {
-		
-		String contenidoString="";
-		
+
+	public static String mostrarCamposLlibres() {
+
+		String contenidoString = "";
+
 		MongoCursor<Document> cursor = coleccionBooks.find().iterator();
 		while (cursor.hasNext()) {
-		System.out.println(cursor.next().toJson());
-		}
+			JSONObject obj = new JSONObject(cursor.next().toJson());
+			contadorLlibres++;
+			System.out.println(contadorLlibres + "- " + obj.getString("Titulo"));
+			contenidoString += contadorLlibres + "- " + obj.getString("Titulo") + "\n";
 
+		}
 
 		return contenidoString;
 	}
-	
+
+	public static String mostrarCamposUsuari() {
+
+		String contenidoString = "";
+
+		MongoCursor<Document> cursor = coleccionUsers.find().iterator();
+		while (cursor.hasNext()) {
+			JSONObject obj = new JSONObject(cursor.next().toJson());
+			contadorUsuaris++;
+			System.out.println(contadorUsuaris + "- " + obj.getString("user"));
+			contenidoString += contadorUsuaris + "- " + obj.getString("user") + "\n";
+		}
+		return contenidoString;
+	}
+
+	public String transformarImagen(String imagen) throws IOException {
+		File fitxer = new File(imagen);
+		Image imatge = ImageIO.read(fitxer);
+		ImageIcon imatgeIcona = new ImageIcon(imatge);
+		JOptionPane.showMessageDialog(null, "", "", JOptionPane.INFORMATION_MESSAGE, imatgeIcona);
+
+		byte[] fileContent = Files.readAllBytes(fitxer.toPath());
+		String encodedString = Base64.encodeBase64String(fileContent);
+
+		return encodedString;
+	}
+
+	public static void anyadirLlibre(int Id, String Titulo, String Autor, int Nacimiento, int Publicacion,
+			String Editorial, int Paginas, String Imagen) {
+		Document doc = new Document();
+		doc.append("Id", Id);
+		doc.append("Titol", Titulo);
+		doc.append("Autor", Autor);
+		doc.append("Any_naiximent", Nacimiento);
+		doc.append("Any_publicacio", Publicacion);
+		doc.append("Editorial", Editorial);
+		doc.append("Nombre_pagines", Paginas);
+		doc.append("Thumbnail", Imagen);
+		coleccionBooks.insertOne(doc);
+	}
 
 	public static void main(String[] args) throws IOException {
 		iniciarConexion();
 		generarHash("elowo");
-		mostrarCampos();
+		mostrarCamposLlibres();
+		mostrarCamposUsuari();
 		mongoClient.close();
-
 	}
 
 }

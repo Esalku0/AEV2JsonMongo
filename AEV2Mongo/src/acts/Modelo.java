@@ -25,7 +25,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
-import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.*;
 
 public class Modelo {
 
@@ -60,7 +60,7 @@ public class Modelo {
 	}
 
 	public static void iniciarConexion() throws IOException {
-		File f1 = new File("conexion.txt");
+		File f1 = new File("./conexion.txt");
 
 		FileReader fReader = new FileReader(f1);
 		BufferedReader br = new BufferedReader(fReader);
@@ -85,11 +85,9 @@ public class Modelo {
 		coleccionBooks = database.getCollection(collectionBooks);
 		coleccionUsers = database.getCollection(collectionUsers);
 
-		System.out.println("ye bon dia");
 	}
 
 	public static String mostrarCamposLlibres() {
-
 		String contenidoString = "";
 
 		MongoCursor<Document> cursor = coleccionBooks.find().iterator();
@@ -98,9 +96,7 @@ public class Modelo {
 			contadorLlibres++;
 			System.out.println(contadorLlibres + "- " + obj.getString("Titulo"));
 			contenidoString += contadorLlibres + "- " + obj.getString("Titulo") + "\n";
-
 		}
-
 		return contenidoString;
 	}
 
@@ -118,35 +114,57 @@ public class Modelo {
 		return contenidoString;
 	}
 
-	public String transformarImagen(String imagen) throws IOException {
-		File fitxer = new File(imagen);
-		Image imatge = ImageIO.read(fitxer);
-		ImageIcon imatgeIcona = new ImageIcon(imatge);
-		JOptionPane.showMessageDialog(null, "", "", JOptionPane.INFORMATION_MESSAGE, imatgeIcona);
-
-		byte[] fileContent = Files.readAllBytes(fitxer.toPath());
-		String encodedString = Base64.encodeBase64String(fileContent);
-
-		return encodedString;
-	}
+//	public String transformarImagen(String imagen) throws IOException {
+//		File fitxer = new File(imagen);
+//		Image imatge = ImageIO.read(fitxer);
+//		ImageIcon imatgeIcona = new ImageIcon(imatge);
+//		JOptionPane.showMessageDialog(null, "", "", JOptionPane.INFORMATION_MESSAGE, imatgeIcona);
+//
+//		byte[] fileContent = Files.readAllBytes(fitxer.toPath());
+//		String encodedString = Base64.encodeBase64String(fileContent);
+//
+//		return encodedString;
+//	}
 
 	public static void anyadirLlibre(int Id, String Titulo, String Autor, int Nacimiento, int Publicacion,
 			String Editorial, int Paginas, String Imagen) {
 		Document doc = new Document();
 		doc.append("Id", Id);
-		doc.append("Titol", Titulo);
+		doc.append("Titulo", Titulo);
 		doc.append("Autor", Autor);
-		doc.append("Any_naiximent", Nacimiento);
-		doc.append("Any_publicacio", Publicacion);
+		doc.append("Anyo_nacimiento", Nacimiento);
+		doc.append("Anyo_publicacion", Publicacion);
 		doc.append("Editorial", Editorial);
-		doc.append("Nombre_pagines", Paginas);
+		doc.append("Numero_paginas", Paginas);
 		doc.append("Thumbnail", Imagen);
 		coleccionBooks.insertOne(doc);
 	}
 
+	
+	public static void borrarLlibre(String Titulo) {
+		coleccionBooks.deleteMany(eq("Titulo", Titulo));
+	}
+	
+	public static void actualitzarLlibre(int Id, String Titulo, String Autor, int Nacimiento, int Publicacion,
+			String Editorial, int Paginas, String Imagen) {
+		Document doc = new Document();
+		doc.append("Id", Id);
+		doc.append("Titulo", Titulo);
+		doc.append("Autor", Autor);
+		doc.append("Anyo_nacimiento", Nacimiento);
+		doc.append("Anyo_publicacion", Publicacion);
+		doc.append("Editorial", Editorial);
+		doc.append("Numero_paginas", Paginas);
+		doc.append("Thumbnail", Imagen);
+		
+		coleccionBooks.updateMany(eq("Titulo", Titulo), new Document("$set", doc));
+	}
+	
+
 	public static void main(String[] args) throws IOException {
 		iniciarConexion();
-		generarHash("elowo");
+//		generarHash("elowo");
+//		anyadirLlibre(15,"sditulo","sdffdsd",2002,1920,"ew",123,"owo");
 		mostrarCamposLlibres();
 		mostrarCamposUsuari();
 		mongoClient.close();

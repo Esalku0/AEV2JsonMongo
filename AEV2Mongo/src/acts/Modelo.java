@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Iterator;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -40,7 +41,7 @@ public class Modelo {
 	static int contadorLlibres = 0;
 	static int contadorUsuaris = 0;
 
-	public static String generarHash(String password) {
+	public static String generarHashContrasenya(String password) {
 		MessageDigest md = null;
 		try {
 			md = MessageDigest.getInstance("SHA-256");
@@ -80,6 +81,8 @@ public class Modelo {
 		collectionBooks = obj.getString("coleccio1");
 		collectionUsers = obj.getString("coleccio2");
 
+		
+		System.out.println(collectionBooks);
 		mongoClient = new MongoClient(ipString, port);
 		MongoDatabase database = mongoClient.getDatabase(bbddString);
 		coleccionBooks = database.getCollection(collectionBooks);
@@ -114,39 +117,22 @@ public class Modelo {
 		return contenidoString;
 	}
 
-//	public String transformarImagen(String imagen) throws IOException {
-//		File fitxer = new File(imagen);
-//		Image imatge = ImageIO.read(fitxer);
-//		ImageIcon imatgeIcona = new ImageIcon(imatge);
-//		JOptionPane.showMessageDialog(null, "", "", JOptionPane.INFORMATION_MESSAGE, imatgeIcona);
-//
-//		byte[] fileContent = Files.readAllBytes(fitxer.toPath());
-//		String encodedString = Base64.encodeBase64String(fileContent);
-//
-//		return encodedString;
-//	}
+	public static String transformarImagen(String imagen) throws IOException {
+		File fitxer = new File(imagen);
+		Image imatge = ImageIO.read(fitxer);
+		ImageIcon imatgeIcona = new ImageIcon(imatge);
+		JOptionPane.showMessageDialog(null, "", "", JOptionPane.INFORMATION_MESSAGE, imatgeIcona);
+
+		byte[] fileContent = Files.readAllBytes(fitxer.toPath());
+		String encodedString = Base64.encodeBase64String(fileContent);
+		System.out.println(encodedString);
+		return encodedString;
+	
+	}
 
 	public static void anyadirLlibre(int Id, String Titulo, String Autor, int Nacimiento, int Publicacion,
 			String Editorial, int Paginas, String Imagen) {
-		Document doc = new Document();
-		doc.append("Id", Id);
-		doc.append("Titulo", Titulo);
-		doc.append("Autor", Autor);
-		doc.append("Anyo_nacimiento", Nacimiento);
-		doc.append("Anyo_publicacion", Publicacion);
-		doc.append("Editorial", Editorial);
-		doc.append("Numero_paginas", Paginas);
-		doc.append("Thumbnail", Imagen);
-		coleccionBooks.insertOne(doc);
-	}
-
-	
-	public static void borrarLlibre(String Titulo) {
-		coleccionBooks.deleteMany(eq("Titulo", Titulo));
-	}
-	
-	public static void actualitzarLlibre(int Id, String Titulo, String Autor, int Nacimiento, int Publicacion,
-			String Editorial, int Paginas, String Imagen) {
+		
 		Document doc = new Document();
 		doc.append("Id", Id);
 		doc.append("Titulo", Titulo);
@@ -157,16 +143,86 @@ public class Modelo {
 		doc.append("Numero_paginas", Paginas);
 		doc.append("Thumbnail", Imagen);
 		
-		coleccionBooks.updateMany(eq("Titulo", Titulo), new Document("$set", doc));
+		coleccionBooks.insertOne(doc);
 	}
 	
+	
+	public static void anyadir(int Id, String Titulo, String Autor, int Nacimiento, int Publicacion,
+			String Editorial, int Paginas, String Imagen) {
+		Document doc = new Document();
+		doc.append("Id", Id);
+		doc.append("Titulo", "roberto martinez");
+		doc.append("Autor", "el owo");
+		doc.append("Anyo_nacimiento", 1999);
+		doc.append("Anyo_publicacion", 2003);
+		doc.append("Editorial", "rayo");
+		doc.append("Numero_paginas", 45);
+		doc.append("Thumbnail", 45);
+		coleccionBooks.insertOne(doc);
+	}
+	
+	
+
+	public static void borrarLlibre(String Titulo) {
+		coleccionBooks.deleteMany(eq("Titulo", Titulo));
+	}
+
+	public static void actualitzarLlibre(int Id, String Titulo, String Autor, int Nacimiento, int Publicacion,String Editorial, int Paginas, String Imagen) {
+		Document doc = new Document();
+		doc.append("Id", Id);
+		doc.append("Titulo", Titulo);
+		doc.append("Autor", Autor);
+		doc.append("Anyo_nacimiento", Nacimiento);
+		doc.append("Anyo_publicacion", Publicacion);
+		doc.append("Editorial", Editorial);
+		doc.append("Numero_paginas", Paginas);
+		doc.append("Thumbnail", Imagen);
+
+		coleccionBooks.updateMany(eq("Titulo", Titulo), new Document("$set", doc));
+	}
+
+	// METODO POR ACABAR ESTA DANDO FALLOS
+	public static boolean iniciarSesio(String usuari, String contrasenya) {
+		
+		Document filterDoc = new Document();
+		boolean comprobacion=false;
+	String hashString=	generarHashContrasenya(contrasenya);
+		
+System.out.println(hashString);
+		MongoCursor<Document> cursor = coleccionUsers.find(and(eq("user", usuari), eq("pass", hashString))).iterator();
+		System.out.println("w");
+			if (cursor.hasNext()) {
+				System.out.println("estoy");
+				comprobacion= true;
+			} else {
+				System.out.println("no estoy");
+				comprobacion= false;
+			}
+		
+		return comprobacion;
+	}
+	
+	public void cerrarConexion() {
+		mongoClient.close();
+	}
+	
+	public void borrarColeccio(String nomColeccio) {
+		if(nomColeccio.equals("llibres")) {
+			coleccionBooks.drop();
+		}else {
+			coleccionUsers.drop();
+		}
+	}
 
 	public static void main(String[] args) throws IOException {
 		iniciarConexion();
-//		generarHash("elowo");
-//		anyadirLlibre(15,"sditulo","sdffdsd",2002,1920,"ew",123,"owo");
-		mostrarCamposLlibres();
-		mostrarCamposUsuari();
+////		generarHash("elowo");
+////		anyadir(15,"sditulo","sdffdsd",2002,1920,"ew",123,"owo");
+////		mostrarCamposLlibres();
+////		mostrarCamposUsuari();
+//
+		iniciarSesio("roberto","roberto");
+//
 		mongoClient.close();
 	}
 

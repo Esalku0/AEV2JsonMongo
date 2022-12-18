@@ -2,6 +2,6 @@
   "IP": "localhost",
   "port": 27017,
   "bbdd": "biblioteca",
-  "coleccio1": "books",
-  "coleccio2": "users"
+  "coleccio1": "llibres",
+  "coleccio2": "usuaris"
 }

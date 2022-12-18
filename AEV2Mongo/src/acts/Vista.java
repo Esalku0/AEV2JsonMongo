@@ -14,6 +14,8 @@ import javax.swing.JLabel;
 import java.awt.Font;
 import javax.swing.JTextPane;
 import java.awt.Panel;
+import javax.swing.JComboBox;
+import javax.swing.DefaultComboBoxModel;
 
 public class Vista extends JFrame {
 
@@ -43,6 +45,11 @@ public class Vista extends JFrame {
 	private JButton btnMostrarContingut;
 	private JTextArea txtContenido;
 	private JButton btnEsborrarConexio;
+	private JTextField txtValorAaplicar;
+	private JButton btnHacerConsulta;
+	private JComboBox cbTipoCampo;
+	private JComboBox cbTipoFiltro;
+	private Panel panel;
 	
 	/**
 	 * Launch the application.
@@ -189,10 +196,29 @@ public class Vista extends JFrame {
 		btnLogin.setBounds(183, 79, 103, 37);
 		QDAS.add(btnLogin);
 		
-		Panel panel = new Panel();
+		 panel = new Panel();
 		panel.setBackground(new Color(255, 128, 128));
 		panel.setBounds(780, 184, 162, 282);
 		QDAS.add(panel);
+		
+		 cbTipoFiltro = new JComboBox();
+		cbTipoFiltro.setModel(new DefaultComboBoxModel(new String[] {"", "eq", "gte", "lte"}));
+		cbTipoFiltro.setBounds(252, 151, 86, 22);
+		QDAS.add(cbTipoFiltro);
+		
+		 cbTipoCampo = new JComboBox();
+		cbTipoCampo.setModel(new DefaultComboBoxModel(new String[] {"", "Id", "Titulo", "Autor", "Anyo_nacimiento", "Anyo_publicacion", "Editorial", "Numero_paginas", "Thumbnail"}));
+		cbTipoCampo.setBounds(348, 151, 86, 22);
+		QDAS.add(cbTipoCampo);
+		
+		txtValorAaplicar = new JTextField();
+		txtValorAaplicar.setColumns(10);
+		txtValorAaplicar.setBounds(465, 153, 86, 20);
+		QDAS.add(txtValorAaplicar);
+		
+		 btnHacerConsulta = new JButton("EXECUTAR");
+		btnHacerConsulta.setBounds(591, 151, 89, 23);
+		QDAS.add(btnHacerConsulta);
 		setVisible(true);
 	}
 
@@ -402,5 +428,45 @@ public class Vista extends JFrame {
 
 	public void setBtnEsborrarConexio(JButton btnEsborrarConexio) {
 		this.btnEsborrarConexio = btnEsborrarConexio;
+	}
+
+	public JTextField getTxtValorAaplicar() {
+		return txtValorAaplicar;
+	}
+
+	public void setTxtValorAaplicar(JTextField txtValorAaplicar) {
+		this.txtValorAaplicar = txtValorAaplicar;
+	}
+
+	public JButton getBtnHacerConsulta() {
+		return btnHacerConsulta;
+	}
+
+	public void setBtnHacerConsulta(JButton btnHacerConsulta) {
+		this.btnHacerConsulta = btnHacerConsulta;
+	}
+
+	public JComboBox getCbTipoCampo() {
+		return cbTipoCampo;
+	}
+
+	public void setCbTipoCampo(JComboBox cbTipoCampo) {
+		this.cbTipoCampo = cbTipoCampo;
+	}
+
+	public JComboBox getCbTipoFiltro() {
+		return cbTipoFiltro;
+	}
+
+	public void setCbTipoFiltro(JComboBox cbTipoFiltro) {
+		this.cbTipoFiltro = cbTipoFiltro;
+	}
+
+	public Panel getPanel() {
+		return panel;
+	}
+
+	public void setPanel(Panel panel) {
+		this.panel = panel;
 	}
 }

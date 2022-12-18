@@ -40,6 +40,15 @@ public class Modelo {
 	static MongoCollection<Document> coleccionUsers;
 	static int contadorLlibres = 0;
 	static int contadorUsuaris = 0;
+	
+	public static boolean isNumeric(String s)
+	{
+		if (s == null || s.equals("")) {
+			return false;
+		}
+
+		return s.chars().allMatch(Character::isDigit);
+	}
 
 	public static String generarHashContrasenya(String password) {
 		MessageDigest md = null;
@@ -81,12 +90,98 @@ public class Modelo {
 		collectionBooks = obj.getString("coleccio1");
 		collectionUsers = obj.getString("coleccio2");
 
-		
 		System.out.println(collectionBooks);
 		mongoClient = new MongoClient(ipString, port);
 		MongoDatabase database = mongoClient.getDatabase(bbddString);
 		coleccionBooks = database.getCollection(collectionBooks);
 		coleccionUsers = database.getCollection(collectionUsers);
+
+	}
+
+	public static String mostrarAmbFiltres(String campo, String filtro, String valor) {
+
+		String resultado = "";
+System.out.println(filtro);
+		if (filtro.equals("")) {
+			MongoCursor<Document> cursor = coleccionBooks.find().iterator();
+			while (cursor.hasNext()) {
+				System.out.println("el owo");
+				JSONObject obj = new JSONObject(cursor.next().toJson());
+				System.out.println(obj.getString("Titulo"));
+				resultado += obj.getInt("Id") + " " + obj.getString("Titulo") + " " +  obj.getString("Autor") + " "+  obj.getInt("Anyo_nacimiento") + ""+  obj.getInt("Anyo_publicacion") + ""+ obj.getString("Editorial")
+				+ "\n";
+				
+			}
+			System.out.println(resultado);
+		} else {
+			
+
+			if (filtro.equals("eq")) {
+				System.out.println("entramos en el eq");
+				
+				Bson query;
+				int caracterInt;
+				if (isNumeric(valor)) {
+					caracterInt=Integer.parseInt(valor);
+					 query = eq(campo, caracterInt);
+				}else {
+					 query = eq(campo, valor);
+				}
+
+			
+				System.out.println(query);
+				MongoCursor<Document> cursor = coleccionBooks.find(query).iterator();
+				System.out.println(collectionBooks);
+				System.out.println(cursor);
+				while (cursor.hasNext()) {
+					JSONObject obj = new JSONObject(cursor.next().toJson());
+					System.out.println(obj.getString("Titulo"));
+					resultado += obj.getInt("Id") + " " + obj.getString("Titulo") + " " +  obj.getString("Autor") + " "+  obj.getInt("Anyo_nacimiento") + ""+  obj.getInt("Anyo_publicacion") + ""+ obj.getString("Editorial")
+					+ "\n";
+				}
+				System.out.println(resultado);
+			} else if (filtro.equals("gte")) {
+				System.out.println("FALTA POR ARREGLAR");
+				Bson query;
+				int caracterInt;
+				if (isNumeric(valor)) {
+					caracterInt=Integer.parseInt(valor);
+					 query = eq(campo, caracterInt);
+				}else {
+					 query = eq(campo, valor);
+				}
+				
+				MongoCursor<Document> cursor = coleccionBooks.find(query).iterator();
+				while (cursor.hasNext()) {
+					JSONObject obj = new JSONObject(cursor.next().toJson());
+					System.out.println(obj.getString("titulo"));
+					resultado += obj.getInt("Id") + " " + obj.getString("Titulo") + " " +  obj.getString("Autor") + " "+  obj.getInt("Anyo_nacimiento") + ""+  obj.getInt("Anyo_publicacion") + ""+ obj.getString("Editorial")
+					+ "\n";
+				}
+				System.out.println(resultado);
+			} else {
+				System.out.println("FALTA POR ARREGLAR");
+				Bson query;
+				int caracterInt;
+				if (isNumeric(valor)) {
+					caracterInt=Integer.parseInt(valor);
+					 query = eq(campo, caracterInt);
+				}else {
+					 query = eq(campo, valor);
+				}
+				MongoCursor<Document> cursor = coleccionBooks.find(query).iterator();
+				while (cursor.hasNext()) {
+					JSONObject obj = new JSONObject(cursor.next().toJson());
+					System.out.println(obj.getString("titulo"));
+					resultado += obj.getInt("Id") + " " + obj.getString("Titulo") + " " +  obj.getString("Autor") + " "+  obj.getInt("Anyo_nacimiento") + ""+  obj.getInt("Anyo_publicacion") + ""+ obj.getString("Editorial")
+					+ "\n";
+				}
+				System.out.println(resultado);
+			}
+
+		}
+
+		return resultado;
 
 	}
 
@@ -127,12 +222,12 @@ public class Modelo {
 		String encodedString = Base64.encodeBase64String(fileContent);
 		System.out.println(encodedString);
 		return encodedString;
-	
+
 	}
 
 	public static void anyadirLlibre(int Id, String Titulo, String Autor, int Nacimiento, int Publicacion,
 			String Editorial, int Paginas, String Imagen) {
-		
+
 		Document doc = new Document();
 		doc.append("Id", Id);
 		doc.append("Titulo", Titulo);
@@ -142,13 +237,12 @@ public class Modelo {
 		doc.append("Editorial", Editorial);
 		doc.append("Numero_paginas", Paginas);
 		doc.append("Thumbnail", Imagen);
-		
+
 		coleccionBooks.insertOne(doc);
 	}
-	
-	
-	public static void anyadir(int Id, String Titulo, String Autor, int Nacimiento, int Publicacion,
-			String Editorial, int Paginas, String Imagen) {
+
+	public static void anyadir(int Id, String Titulo, String Autor, int Nacimiento, int Publicacion, String Editorial,
+			int Paginas, String Imagen) {
 		Document doc = new Document();
 		doc.append("Id", Id);
 		doc.append("Titulo", "roberto martinez");
@@ -160,14 +254,13 @@ public class Modelo {
 		doc.append("Thumbnail", 45);
 		coleccionBooks.insertOne(doc);
 	}
-	
-	
 
 	public static void borrarLlibre(String Titulo) {
 		coleccionBooks.deleteMany(eq("Titulo", Titulo));
 	}
 
-	public static void actualitzarLlibre(int Id, String Titulo, String Autor, int Nacimiento, int Publicacion,String Editorial, int Paginas, String Imagen) {
+	public static void actualitzarLlibre(int Id, String Titulo, String Autor, int Nacimiento, int Publicacion,
+			String Editorial, int Paginas, String Imagen) {
 		Document doc = new Document();
 		doc.append("Id", Id);
 		doc.append("Titulo", Titulo);
@@ -183,33 +276,33 @@ public class Modelo {
 
 	// METODO POR ACABAR ESTA DANDO FALLOS
 	public static boolean iniciarSesio(String usuari, String contrasenya) {
-		
+
 		Document filterDoc = new Document();
-		boolean comprobacion=false;
-	String hashString=	generarHashContrasenya(contrasenya);
-		
-System.out.println(hashString);
+		boolean comprobacion = false;
+		String hashString = generarHashContrasenya(contrasenya);
+
+		System.out.println(hashString);
 		MongoCursor<Document> cursor = coleccionUsers.find(and(eq("user", usuari), eq("pass", hashString))).iterator();
 		System.out.println("w");
-			if (cursor.hasNext()) {
-				System.out.println("estoy");
-				comprobacion= true;
-			} else {
-				System.out.println("no estoy");
-				comprobacion= false;
-			}
-		
+		if (cursor.hasNext()) {
+			System.out.println("estoy");
+			comprobacion = true;
+		} else {
+			System.out.println("no estoy");
+			comprobacion = false;
+		}
+
 		return comprobacion;
 	}
-	
+
 	public void cerrarConexion() {
 		mongoClient.close();
 	}
-	
-	public void borrarColeccio(String nomColeccio) {
-		if(nomColeccio.equals("llibres")) {
+
+	public static void borrarColeccio(String nomColeccio) {
+		if (nomColeccio.equals("llibres")) {
 			coleccionBooks.drop();
-		}else {
+		} else {
 			coleccionUsers.drop();
 		}
 	}
@@ -221,7 +314,7 @@ System.out.println(hashString);
 ////		mostrarCamposLlibres();
 ////		mostrarCamposUsuari();
 //
-		iniciarSesio("roberto","roberto");
+		iniciarSesio("roberto", "roberto");
 //
 		mongoClient.close();
 	}
